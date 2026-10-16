@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # 우선 직접 실행한 PostgreSQL에 접속하는 방식
+  docker:
+    compose:
+      enabled: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug

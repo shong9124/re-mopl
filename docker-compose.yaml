@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_DB: remopl
+      POSTGRES_USER: remopl
+      POSTGRES_PASSWORD: remopl
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
