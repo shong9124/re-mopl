@@ -1,4 +1,4 @@
-package com.practice.remopl.user.dto.resposne;
+package com.practice.remopl.user.dto.response;
 
 import java.time.Instant;
 import java.util.UUID;

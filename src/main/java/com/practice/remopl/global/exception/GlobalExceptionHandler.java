@@ -7,7 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,15 +34,44 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
         String detailedErrorLog = e.getBindingResult().getFieldErrors().stream()
-                .map(error -> String.format("필드 [%s] - 입력값: [%s], 원인: [%s]",
+                .map(error -> String.format("필드 [%s] - 원인: [%s]",
                         error.getField(),
-                        error.getRejectedValue(),
                         error.getDefaultMessage()))
                 .collect(Collectors.joining(" | "));
         log.warn("유효성 검사 실패 (MethodArgumentNotValidException) -> {}", detailedErrorLog);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.from(e));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException e) {
+        log.warn("요청 본문을 읽을 수 없습니다.");
+        return ResponseEntity.badRequest().body(ErrorResponse.from(e));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        log.warn("필수 요청 파라미터 누락: {}", e.getParameterName());
+        return ResponseEntity.badRequest().body(ErrorResponse.from(e));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
+        log.warn("지원하지 않는 HTTP 메서드: {}", e.getMethod());
+        return ResponseEntity.status(e.getStatusCode())
+                .body(new ErrorResponse("METHOD_NOT_ALLOWED", "지원하지 않는 HTTP 메서드입니다.", null));
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException e) {
+        log.warn("지원하지 않는 미디어 타입: {}", e.getContentType());
+        return ResponseEntity.status(e.getStatusCode())
+                .body(new ErrorResponse("UNSUPPORTED_MEDIA_TYPE", "지원하지 않는 미디어 타입입니다.", null));
     }
 
     @ExceptionHandler(Exception.class)

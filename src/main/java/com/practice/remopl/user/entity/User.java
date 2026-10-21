@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
                 )
         }
 )
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity {
 
     @Column(nullable = false, length = 255)
@@ -59,7 +60,7 @@ public class User extends BaseUpdatableEntity {
     }
 
     private void updateName(String newName) {
-        if (newName.isBlank() || newName == null) {
+        if (newName == null || newName.isBlank()) {
             throw new InvalidUsernameException();
         }
         this.name = newName;

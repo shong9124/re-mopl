@@ -1,7 +1,7 @@
 package com.practice.remopl.user.controller;
 
 import com.practice.remopl.user.dto.request.UserCreateRequest;
-import com.practice.remopl.user.dto.resposne.UserResponse;
+import com.practice.remopl.user.dto.response.UserResponse;
 import com.practice.remopl.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
